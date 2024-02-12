@@ -6,7 +6,9 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 )
-camera.position.z = 5
+camera.position.z = 50
+camera.position.y = -40
+camera.rotation.x = 0.6
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setClearColor("#e5e5e5")
@@ -21,32 +23,113 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix()
 })
 
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
 
+const frigate = new THREE.Group()
 
-const geometry = new THREE.BoxGeometry(1, 1, 1)
+const geometry = new THREE.BoxGeometry(20, 8, 5)
 const material = new THREE.MeshLambertMaterial({
-    color: 0xFFCC00
+    color: 0xd1d1d1
 })
 const mesh = new THREE.Mesh(geometry, material)
+frigate.add(mesh)
 
-mesh.rotation.set(45, 0, 0)
-mesh.position.set(2, -1, 1)
+scene.add(frigate)
 
+// Define the movement keys
+const keys = {
+    w: false,
+    a: false,
+    s: false,
+    d: false
+};
 
-scene.add(mesh)
+// Define the speed and rotation rate
+const speed = 0.1;
+const rotationRate = 0.01;
+
+// Event listeners for keydown and keyup events
+document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    if (keys.hasOwnProperty(key)) {
+        keys[key] = true;
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    const key = event.key.toLowerCase();
+    if (keys.hasOwnProperty(key)) {
+        keys[key] = false;
+    }
+});
 
 const light = new THREE.PointLight(0xFFFFFF, 1, 500)
 light.position.set(-50, -50, 50)
 scene.add(light)
 
-const render = function() {
-    requestAnimationFrame(render)
+// Define the ship's properties
+let shipSpeed = 0;
+let shipTurnRate = 0;
+const maxSpeed = 0.5;
+const maxTurnRate = 0.02;
+const acceleration = 0.001;
+const deceleration = 0.001;
+const turnAcceleration = 0.0005;
+const turnDeceleration = 0.0005;
 
-    mesh.rotation.x += 0.01
-    mesh.rotation.y += 0.01
+const render = function () {
+    requestAnimationFrame(render);
 
-    renderer.render(scene, camera)
-}
+    // accelerate forward
+    if (keys.w) {
+        shipSpeed = Math.min(maxSpeed, shipSpeed + acceleration);
+    }
+    // accelerate backward
+    if (keys.s) {
+        shipSpeed = Math.max(-maxSpeed, shipSpeed - acceleration);
+    }
 
-render()
+    // decrease speed when no key is pressed
+    if (!keys.w && !keys.s) {
+        if (shipSpeed > 0) {
+            shipSpeed = Math.max(0, shipSpeed - deceleration);
+        } else if (shipSpeed < 0) {
+            shipSpeed = Math.min(0, shipSpeed + deceleration);
+        }
+    }
 
+    // ship moves along X axis
+    frigate.translateX(shipSpeed);
+
+    // Determine turn rate based on current speed to prevent turning when stationary
+    let currentTurnRate = shipSpeed === 0 ? 0 : shipTurnRate;
+
+    // Increase turn rate to the left
+    if (keys.a) {
+        // Math.min() prevents from exceeding maxTurnRate value
+        shipTurnRate = Math.min(maxTurnRate, shipTurnRate + turnAcceleration);
+    }
+    // Increase turn rate to the right
+    if (keys.d) {
+        shipTurnRate = Math.max(-maxTurnRate, shipTurnRate - turnAcceleration);
+    }
+    // Decelerate turn rate when no left/right key is pressed
+    if (!keys.a && !keys.d) {
+        if (shipTurnRate > 0) {
+            shipTurnRate = Math.max(0, shipTurnRate - turnDeceleration);
+        } else if (shipTurnRate < 0) {
+            shipTurnRate = Math.min(0, shipTurnRate + turnDeceleration);
+        }
+    }
+
+    // Apply turn rate if the ship is moving
+    if (shipSpeed !== 0) {
+        frigate.rotation.z += currentTurnRate;
+    }
+
+    // Render the scene
+    renderer.render(scene, camera);
+};
+
+render();
