@@ -5,7 +5,7 @@ import { addResizeListener } from '../utils/ResizeHandler.js';
 export class MainScene {
     constructor() {
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(110, window.innerWidth / window.innerHeight, 0.1, 1500);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.frigate = new Frigate().object;
         this.controls = new ShipControls(this.frigate, this.renderer, this.camera);
@@ -14,9 +14,9 @@ export class MainScene {
 
     init() {
         this.camera.position.z = 50
-        this.camera.position.y = -40
-        this.camera.rotation.x = 0.6
-        this.renderer.setClearColor("#e5e5e5")
+        this.camera.position.y = -90
+        this.camera.rotation.x = 1.5
+        this.renderer.setClearColor("#a8d4ff")
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
@@ -31,14 +31,14 @@ export class MainScene {
     }
 
     addLights() {
-        const light = new THREE.PointLight(0xFFFFFF, 1, 500)
-        light.position.set(-50, -50, 50)
+        const light = new THREE.PointLight(0xFFFFFF, 1, 1000)
+        light.position.set(-100, -100, 200)
         this.scene.add(light)
     }
 
     addWater() {
         // Geometry of the water surface
-        const waterGeometry = new THREE.PlaneGeometry(1000, 1000, 32, 64);
+        const waterGeometry = new THREE.PlaneGeometry(1500, 1500, 64, 130);
 
         // Vertex shader for the water effect
         const waterVertexShader = `
@@ -55,7 +55,7 @@ export class MainScene {
                 pos.z += waveHeight;
                 pos.z += waveHeight;
                 zPos = waveHeight; // Pass wave height to fragment shader for color adjustment
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 0.7);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 0.5);
             }
         `;
 
