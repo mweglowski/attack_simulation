@@ -1,5 +1,6 @@
 import { ShipControls } from '../controls/ShipControls.js';
 import { Frigate } from '../objects/Frigate.js';
+import { Missle } from '../objects/Missle.js';
 import { addResizeListener } from '../utils/ResizeHandler.js';
 
 export class MainScene {
@@ -13,18 +14,26 @@ export class MainScene {
     }
 
     init() {
+        this.camera.position.y = 50
         this.camera.position.z = 50
-        this.camera.position.y = -90
-        this.camera.rotation.x = 1.5
+
         this.renderer.setClearColor("#a8d4ff")
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
+        // Frigate
         this.scene.add(this.frigate);
 
+        // Lights
         this.addLights()
+
+        // Water
         this.addWater()
 
+        // Listen for missle launch (button click)
+        this.listenForMissle()
+
+        // Listen for window resizes
         addResizeListener(this.renderer, this.camera)
 
         this.animate();
@@ -32,7 +41,7 @@ export class MainScene {
 
     addLights() {
         const light = new THREE.PointLight(0xFFFFFF, 1, 1000)
-        light.position.set(-100, -100, 200)
+        light.position.set(-100, 200, 100)
         this.scene.add(light)
     }
 
@@ -88,10 +97,23 @@ export class MainScene {
         const water = new THREE.Mesh(waterGeometry, this.waterMaterial);
 
         // Rotate the water plane to lie flat
-        water.rotation.z = -Math.PI / 2;
+        water.rotation.x = -Math.PI / 2;
 
         // Add the water mesh to the scene
         this.scene.add(water);
+    }
+
+    listenForMissle() {
+        document.getElementById('spawnMissleButton').addEventListener('click', this.spawnMissle)
+    }
+
+    spawnMissle() {
+        console.log('missle spawned!')
+
+        const missle = new Missle()
+
+        // setting missle position to be high above the water
+        // missle.position.set(Math.random() * 100)
     }
 
     animate = () => {

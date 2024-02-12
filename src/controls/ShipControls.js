@@ -79,7 +79,7 @@ export class ShipControls {
 
         // Apply turn rate if the ship is moving
         if (this.shipSpeed !== 0) {
-            this.frigate.rotation.z += currentTurnRate;
+            this.frigate.rotation.y += currentTurnRate;
         }
     }
 }
