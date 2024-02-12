@@ -1,6 +1,6 @@
 import { ShipControls } from '../controls/ShipControls.js';
 import { Frigate } from '../objects/Frigate.js';
-import { Missle } from '../objects/Missle.js';
+import { Missile } from '../objects/Missile.js';
 import { addResizeListener } from '../utils/ResizeHandler.js';
 
 export class MainScene {
@@ -30,8 +30,8 @@ export class MainScene {
         // Water
         this.addWater()
 
-        // Listen for missle launch (button click)
-        this.listenForMissle()
+        // Listen for missile launch (button click)
+        this.listenForMissile()
 
         // Listen for window resizes
         addResizeListener(this.renderer, this.camera)
@@ -103,17 +103,76 @@ export class MainScene {
         this.scene.add(water);
     }
 
-    listenForMissle() {
-        document.getElementById('spawnMissleButton').addEventListener('click', this.spawnMissle)
+    listenForMissile() {
+        document.getElementById('spawnMissileButton').addEventListener('click', () => {
+            this.spawnMissile()
+        })
     }
 
-    spawnMissle() {
-        console.log('missle spawned!')
+    spawnMissile() {
+        console.log('missile spawned!')
 
-        const missle = new Missle()
+        const initialPosition = new THREE.Vector3(
+            Math.random() * 200 - 100, Math.random() * 300 + 200, -50 * Math.random() - 200
+        )
 
-        // setting missle position to be high above the water
-        // missle.position.set(Math.random() * 100)
+        const missile = new Missile()
+        
+        // setting missile position to be high above the water
+        missile.setPosition(initialPosition.x, initialPosition.y, initialPosition.z)
+
+        // missile.position.x = Math.random() * 50
+        // missile.position.y = 50
+        // missile.position.z = Math.random() * 50
+
+        this.scene.add(missile.object)
+        // make missile move
+        this.animateMissile(missile)
+    }
+
+    animateMissile(missile) {
+        const targetInitialPosition = this.frigate.position.clone();
+        const gravity = new THREE.Vector3(0, -3, 0);
+        let velocity = new THREE.Vector3();
+        const speed = 2
+
+        const missileAnimation = () => {
+            let currentMissilePosition = missile.object.position
+
+            // Move the missile each frame
+            if (targetInitialPosition.x > currentMissilePosition.x) {
+                velocity.x = speed
+            } else {
+                velocity.x = -speed
+            }
+            if (targetInitialPosition.y > currentMissilePosition.y) {
+                velocity.y = speed
+            } else {
+                velocity.y = -speed
+            }
+            if (targetInitialPosition.z > currentMissilePosition.z) {
+                velocity.z = speed
+            } else {
+                velocity.z = -speed
+            }
+
+            // include gravity
+            missile.object.position.add(gravity);
+            // add velocity (my own simple guidance system
+            missile.object.position.add(velocity)
+            
+            // Check for collision with the frigate
+            if (missile.object.position.y <= targetInitialPosition.y) {
+                console.log('Hit!');
+                this.scene.remove(missile.object);
+                return; // Exit the animation loop
+            }
+            
+            // Continue the animation loop
+            requestAnimationFrame(missileAnimation);
+        };
+        
+        missileAnimation();
     }
 
     animate = () => {

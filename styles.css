@@ -10,14 +10,14 @@ canvas {
     display: block;
 }
 
-.spawnMissleButtonContainer {
+.spawnMissileButtonContainer {
     position: absolute;
     bottom: 0;
     width: 100%;
     text-align: center;
 }
 
-#spawnMissleButton {
+#spawnMissileButton {
     position: relative;
     margin-bottom: 2em;
     padding: 0.5em 1.5em;
@@ -33,7 +33,7 @@ canvas {
     transition: .4s;
     outline: none;
 }
-#spawnMissleButton:hover {
+#spawnMissileButton:hover {
     background-color: transparent;
     color: red;
     border-color: red;
@@ -41,7 +41,7 @@ canvas {
     text-shadow: 0 0 .5em black;
     cursor: pointer;
 }
-#spawnMissleButton:active {
+#spawnMissileButton:active {
     background-color: orange;
     box-shadow: 0 0 .5em yellow;
     color: yellow;
